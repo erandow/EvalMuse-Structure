@@ -7,7 +7,7 @@ Baseline for ntire 2025 and dataset description will be released.
 
 
 # Baseline Results
-We provide a Google Drive link with a baseline prediction result: [baseline result file](https://drive.google.com/file/d/18OBQVFlpY6rr9EZapVKGWIJtaDyQ-_BQ/view?usp=drive_link)  
+We provide a Google Drive link for the baseline prediction result: [baseline result](https://drive.google.com/file/d/18OBQVFlpY6rr9EZapVKGWIJtaDyQ-_BQ/view?usp=drive_link)  
 The metrics score of the baseline is:
 
 | Precision      | Recall      | F1-score      | PLCC      | SROCC      |Final-score      |
