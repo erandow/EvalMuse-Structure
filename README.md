@@ -29,7 +29,7 @@ If you find EvalMuse or EM-RAHF useful for your research, please consider cite o
       url={https://arxiv.org/abs/2412.18150}, 
 }
 ```
-For using baseline RAHF or dataset RichHF-18k, please consider cite cite paper
+For using baseline RAHF or dataset RichHF-18k, please consider cite the paper
 ```bibtex
 @inproceedings{richhf,
   title={Rich Human Feedback for Text-to-Image Generation},
