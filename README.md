@@ -14,7 +14,7 @@ You can train the baseline model by changing your own data path and training par
 note that we use the pretrained model [AltCLIP](https://huggingface.co/BAAI/AltCLIP) as vision and text encoder to achieve better performance.
 Evaluation and inference can be done by changing your own data path and model weight path, then run
 ```bash
-python evaluation.py
+python evaluate.py
 ```
 
 # Baseline Results
