@@ -1,6 +1,6 @@
 # EvalMuse-Structure
 This repo is prepared for EvalMuse Part2-Structure Distortion Detection.
-Baseline for ntire 2025 and has been released.
+Baseline for ntire 2025 'Text to Image Generation Model Quality Assessment -Track2- Structure Distortion Detection' has been released.
 
 # Framework
 This baseline (EM-RAHF) is inspired by paper [Rich Human Feedback for Text-to-Image Generation](https://arxiv.org/pdf/2312.10240), since the authors of RAHF did not provide code, we modified some details of the original model and achieved better performance.The details of our methods will be published in a technical report paper.
