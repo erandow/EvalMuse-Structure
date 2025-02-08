@@ -32,13 +32,7 @@ class VisionTransformer(nn.Module):
     else:
       for param in self.ViT.post_layernorm.parameters():
         param.requires_grad = False
-    # 使用siglip时需要
-    # else:
-    #    for param in self.ViT.head.parameters(): # unused
-    #       param.requires_grad = False
 
-    # print(self.ViT)
-    # print(self.ViT.config)
   def forward(self, x):
     x = self.ViT(x)
     return x 
@@ -73,9 +67,8 @@ class VisionTransformer(nn.Module):
 class TextEmbedding(nn.Module):
   def __init__(self, pretrained_model, freeze):
     super(TextEmbedding, self).__init__()
-    # siglip的形式
-    # self.text_embedding = pretrained_model.text_model.embeddings
-    # AltCLIP的形式
+
+    # AltCLIP
     self.text_embedding = pretrained_model.text_model.roberta.embeddings
     self.freeze = freeze
     if self.freeze:
@@ -214,10 +207,9 @@ class RAHF(nn.Module):
     text_token = self.text_encoder(prompt)
     x = torch.cat([image_token, text_token], dim=1)
     x = self.self_attention(x)
-    # feature_map = x[:, :1024, :].clone().view(-1, 32, 32, 768).permute(0, 3, 1, 2)  # 使用siglip时需要
     feature_map = x[:, 1:1025, :].clone().view(-1, 32, 32, 1024).permute(0, 3, 1, 2)
     heatmap = self.heatmap_predictor(feature_map)
-    # return heatmap, torch.tensor(0.0)
+
     if not need_score:
       return heatmap
     else:
@@ -226,17 +218,3 @@ class RAHF(nn.Module):
   
 if __name__ == "__main__":
     model = RAHF()
-
-    # from PIL import Image
-    # from google.colab import drive
-    # drive.mount('/content/drive')
-    # processor = AutoProcessor.from_pretrained("google/siglip-base-patch16-512")
-    # image = Image.open('/content/drive/MyDrive/RAHF_dataset/images/test.png')
-    # texts = ["mother and daugther with a toy bear mother"]
-    # inputs = processor(text=texts, images=image, padding="max_length", return_tensors="pt")
-    # input_img = inputs["pixel_values"]
-    # input_text = inputs["input_ids"]
-
-    # with torch.no_grad():
-    #   heatmap = model(input_img, input_text)
-    # print(heatmap)

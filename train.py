@@ -16,7 +16,6 @@ import torch.nn as nn
 import logging
 import argparse
 import torch.distributed as dist
-# from evaluate import evaluate
 from dataset import RAHFDataset
 from utils import print_log_iter, eval_in_training, save_in_training, final_save
 
@@ -184,7 +183,7 @@ def main():
   parser.add_argument("--experiment_name", required=True, type=str, help="name of this experiment")
   parser.add_argument("--load_checkpoint", default='', type=str, help="the name of the checkpoint to be loaded")
   parser.add_argument("--bytenas_path", type=str, default='xxx', help="path of bytenas")  # 存放实验相关内容
-  parser.add_argument("--data_path", type=str, default='xxx', help="path of data")
+  parser.add_argument("--data_path", type=str, default='xxx', help="path of data")       # 训练/测试数据存放路径
   parser.add_argument('--iters', required=True, type=int, metavar='N', help='number of total iterations to run')
   parser.add_argument('--batch_size', default=4, type=int, metavar='N', help='the batchsize for each gpu')
   parser.add_argument('--accumulate_step', default=16, type=int, metavar='N', help='accumulate_step * batch_size = actual batch size')
