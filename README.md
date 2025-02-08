@@ -17,7 +17,7 @@ The metrics score of the baseline is:
 
 # Citation and Acknowledgement
 
-If you find EvalMuse useful for your research, please consider cite our paper:
+If you find EvalMuse or EM-RAHF useful for your research, please consider cite our paper:
 ```bibtex
 @misc{han2024evalmuse40kreliablefinegrainedbenchmark,
       title={EvalMuse-40K: A Reliable and Fine-Grained Benchmark with Comprehensive Human Annotations for Text-to-Image Generation Model Evaluation}, 
@@ -29,4 +29,12 @@ If you find EvalMuse useful for your research, please consider cite our paper:
       url={https://arxiv.org/abs/2412.18150}, 
 }
 ```
-For using baseline RAHF, please cite cite paper
+For using baseline RAHF or dataset RichHF-18k, please consider cite cite paper
+```bibtex
+@inproceedings{richhf,
+  title={Rich Human Feedback for Text-to-Image Generation},
+  author={Youwei Liang and Junfeng He and Gang Li and Peizhao Li and Arseniy Klimovskiy and Nicholas Carolan and Jiao Sun and Jordi Pont-Tuset and Sarah Young and Feng Yang and Junjie Ke and Krishnamurthy Dj Dvijotham and Katie Collins and Yiwen Luo and Yang Li and Kai J Kohlhoff and Deepak Ramachandran and Vidhya Navalpakkam},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  year={2024},
+}
+```
