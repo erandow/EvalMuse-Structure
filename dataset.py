@@ -8,10 +8,7 @@ from transformers import AutoProcessor
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from PIL import Image, ImageOps
-import matplotlib.pyplot as plt
 from skimage.transform import resize
-import json
-import os
 import numpy as np
 
 random.seed(time.time())

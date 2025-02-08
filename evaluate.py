@@ -1,16 +1,12 @@
 import torch
 from model.model_final import RAHF
 from PIL import Image
-from transformers import AutoProcessor
-from visualize import heatmap_overlay
 import numpy as np
 from scipy.stats import spearmanr
-from dataset import RAHFDataset, RAHFDataset_old
+from dataset import RAHFDataset
 from torch.utils.data import DataLoader, Dataset
 import pickle
 import os
-import csv 
-
 
 def get_plcc_srcc(output_scores, gt_scores):
     # for (output_scores, gt_scores) in zip(output_scores_list, gt_scores_list):
@@ -68,7 +64,7 @@ def save_heatmap_mask(input_tensor, threshold, img_name, save_path, process_edge
     pil_image.save(f"{save_path}/{img_name}.png")
     pil_vis = Image.fromarray(vis_numpt[0])
     pil_vis.save(f"{vis_path}/{img_name}.png")
-    
+
     
 def process_segment_output(outputs):
     normed = torch.softmax(outputs,dim=1)
@@ -162,8 +158,6 @@ def evaluate_test(model, dataloader, device, criterion, save_root):
                 "score":output_score.item(),
                 "pred_area": saved_output_im_map
             }
-
-            
             target_im_score = targets['artifact_score']
             output_im_score = outputs_im[1].to(device)
             print(f'Counter {counter} implausibity heatmap loss: {cur_loss_heatmap_im}, score&gt: {output_im_score}&{target_im_score}')
@@ -171,13 +165,32 @@ def evaluate_test(model, dataloader, device, criterion, save_root):
     print(f"Aver loss: {loss_heatmap_im / len(dataloader)}, {loss_score_im / len(dataloader)}, \
           {loss_heatmap_mis / len(dataloader)}, {loss_score_mis / len(dataloader)},")
     
-    with open('baseline_results.pkl', 'wb') as f:
+    with open(f'{save_root}/baseline_results.pkl', 'wb') as f:
         pickle.dump(preds, f)
 
     # compute plcc srcc
     get_plcc_srcc(output_im_scores, gt_im_scores)
     return outputs
 
+if  __name__ == '__main__':
+    '''** code for dataset **'''
+    gpu = "cuda:0"
+    pretrained_processor_path = 'altclip_processor'
+    pretrained_model_path = 'altclip_model'
+    datapath = 'xxx' # save path of datasets
+    save_root = 'xxx' # save path of the evaluate results
+    load_checkpoint = 'xxx' # save path of the model weight
+
+    val_dataset = RAHFDataset(datapath, 'val', pretrained_processor_path)
+    val_dataloader = DataLoader(dataset=val_dataset, batch_size=1, shuffle=False, pin_memory=True, num_workers=2)
+    criterion = torch.nn.MSELoss(reduction='mean').to(gpu)
+
+    model = RAHF(pretrained_model_path=pretrained_model_path, freeze=True)
+    model.cuda(gpu)
+    print(f'Load checkpoint {load_checkpoint}')
+    checkpoint = torch.load(f'{load_checkpoint}', map_location=gpu)
+    model.load_state_dict(checkpoint['model'])
+    outputs = evaluate_test(model=model, dataloader=val_dataloader, device=gpu, criterion=criterion, save_root=save_root)
 
 
 

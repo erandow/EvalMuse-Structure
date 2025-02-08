@@ -6,6 +6,16 @@ Baseline for ntire 2025 'Text to Image Generation Model Quality Assessment -Trac
 This baseline (EM-RAHF) is inspired by paper [Rich Human Feedback for Text-to-Image Generation](https://arxiv.org/pdf/2312.10240), since the authors of RAHF did not provide code, we modified some details of the original model and achieved better performance.The details of our methods will be published in a technical report paper.
 ![baseline framework](images/model.png)
 
+# Train&Eval
+You can train the baseline model by changing your own data path and training parameter settings, then run  
+```bash
+./run_train.sh  
+```
+note that we use the pretrained model [AltCLIP](https://huggingface.co/BAAI/AltCLIP) as vision and text encoder to achieve better performance.
+Evaluation and inference can be done by changing your own data path and model weight path, then run
+```bash
+python evaluation.py
+```
 
 # Baseline Results
 We provide a Google Drive link for the baseline prediction result: [baseline result](https://drive.google.com/file/d/18OBQVFlpY6rr9EZapVKGWIJtaDyQ-_BQ/view?usp=drive_link)  

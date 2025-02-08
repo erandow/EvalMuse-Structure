@@ -6,3 +6,6 @@ protobuf
 scikit-image
 matplotlib
 opencv-python-headless
+numpy
+scipy
+skimage
