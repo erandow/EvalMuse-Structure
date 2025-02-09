@@ -13,10 +13,10 @@ def overlay_heatmap_opencv(mask, image):
     overlayed_image = cv2.addWeighted(image, 0.3, heatmap, 0.7, 0)
     return overlayed_image
 
-train_path = '/mnt/bn/rahf/mlx/users/jincheng.liang/repo/13903/lang-sam/data/workshop/train/images' # 训练集图片路径
+train_path = 'xxx' # 训练集图片路径
 vis_path = 'xxx' # 热力图可视化保存路径
 save_path = 'xxx' # 训练数据保存路径
-info_path = '/mnt/bn/rahf/mlx/users/jincheng.liang/repo/13903/lang-sam/data/workshop/train/anno_info.json'# 训练集标注数据
+info_path = 'train_info.json'# 训练集标注数据
 with open(info_path, 'r') as f:
     info = json.load(f)
 os.makedirs(save_path, exist_ok=True)
