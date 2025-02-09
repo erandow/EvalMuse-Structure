@@ -7,6 +7,8 @@ from dataset import RAHFDataset
 from torch.utils.data import DataLoader, Dataset
 import pickle
 import os
+import json
+from transformers import AutoProcessor
 
 def get_plcc_srcc(output_scores, gt_scores):
     # for (output_scores, gt_scores) in zip(output_scores_list, gt_scores_list):
@@ -109,88 +111,63 @@ def evaluate(model, dataloader, device, criterion):
             loss_heatmap_mis / len(dataloader), loss_score_mis / len(dataloader) * scale_factor[1]]
 
 
-def evaluate_test(model, dataloader, device, criterion, save_root):
-    '''
-    推理并保存用于计算指标分数的pkl文件
-    '''
-    model.eval()
-    loss_heatmap_im, loss_score_im, loss_heatmap_mis, loss_score_mis, ori_loss_heatmap_im, ori_loss_heatmap_mis = 0, 0, 0, 0, 0, 0
-    print(f"Length of dataloader: {len(dataloader)}")
-    output_im_scores, output_mis_scores, gt_im_scores, gt_mis_scores = [], [], [], []
-    outputs = {}
-    preds = {}
-    heatmap_threshold = 40
-    with torch.no_grad():
-        sum_heatmap_im = 0.0
-        counter = 0
-
-        for idx,(inputs, targets) in enumerate(dataloader):
-            img_name = targets['img_name'][0]
-            inputs = inputs.to(device)
-            outputs_im = model(inputs['pixel_values'].squeeze(1), inputs['input_ids'][:, 0, :])  # implausibility
-            output_heatmap, target_heatmap = outputs_im[0].to(device), targets['artifact_map'].float().to(device)
-            output_score, target_score = outputs_im[1].to(device), targets['artifact_score'].float().to(device)
-            cur_loss_heatmap_im = criterion(output_heatmap, target_heatmap).item()
-
-            loss_heatmap_im += cur_loss_heatmap_im
-            sum_heatmap_im += (output_heatmap * 255.0).sum().item()
-            ori_outputs_im_map = torch.round(outputs_im[0] * 255.0).to(device)
-            ori_target_im_map = (targets['artifact_map'].float() * 255.0).to(device)
-
-            output_im_scores.append(output_score.item())
-            gt_im_scores.append(targets['artifact_score'].float().to(device).item())
-            cur_loss_score_im = criterion(outputs_im[1].to(device), targets['artifact_score'].float().to(device)).item()
-            loss_score_im += cur_loss_score_im
-
-            # compute loss
-            cur_loss_heatmap_im = criterion(outputs_im[0].to(device), targets['artifact_map'].float().to(device)).item()
-            loss_heatmap_im += cur_loss_heatmap_im
-            
-            print(f'Sum of ori_heatmap: {ori_outputs_im_map.sum()}')
-            
-            outputs[img_name] = [
-                ori_outputs_im_map.cpu().numpy() , ori_target_im_map.cpu().numpy()]
-            
-            # 保存用于计算指标分数的pkl文件
-            input_tensor = torch.where(ori_outputs_im_map > heatmap_threshold, 1, 0)
-            saved_output_im_map = input_tensor.squeeze(0).cpu().numpy().astype(np.uint8)
-            preds[img_name[:-4]] = {
-                "score":output_score.item(),
-                "pred_area": saved_output_im_map
-            }
-            target_im_score = targets['artifact_score']
-            output_im_score = outputs_im[1].to(device)
-            print(f'Counter {counter} implausibity heatmap loss: {cur_loss_heatmap_im}, score&gt: {output_im_score}&{target_im_score}')
-
-    print(f"Aver loss: {loss_heatmap_im / len(dataloader)}, {loss_score_im / len(dataloader)}, \
-          {loss_heatmap_mis / len(dataloader)}, {loss_score_mis / len(dataloader)},")
-    
-    with open(f'{save_root}/baseline_results.pkl', 'wb') as f:
-        pickle.dump(preds, f)
-
-    # compute plcc srcc
-    get_plcc_srcc(output_im_scores, gt_im_scores)
-    return outputs
-
 if  __name__ == '__main__':
-    '''** code for dataset **'''
+
+    '''推理并保存计算分数的pkl文件'''
     gpu = "cuda:0"
     pretrained_processor_path = 'altclip_processor'
     pretrained_model_path = 'altclip_model'
-    datapath = 'xxx' # save path of datasets
     save_root = 'xxx' # save path of the evaluate results
-    load_checkpoint = 'xxx' # save path of the model weight
+    load_checkpoint = 'xxx' # data path of the model weight
 
-    val_dataset = RAHFDataset(datapath, 'val', pretrained_processor_path)
-    val_dataloader = DataLoader(dataset=val_dataset, batch_size=1, shuffle=False, pin_memory=True, num_workers=2)
-    criterion = torch.nn.MSELoss(reduction='mean').to(gpu)
+    val_info_path = 'val_info.json' # data path of the val anno info
+    val_info = json.load(open(val_info_path, 'r'))
+    name2prompt = {k:v['prompt_en'] for k,v in val_info.items()}
 
-    model = RAHF(pretrained_model_path=pretrained_model_path, freeze=True)
-    model.cuda(gpu)
+    img_root = 'xxx' # data path of the val images
+    img_files = os.listdir(img_root)
+    
+    gpu = "cuda:0"
     print(f'Load checkpoint {load_checkpoint}')
-    checkpoint = torch.load(f'{load_checkpoint}', map_location=gpu)
+    checkpoint = torch.load(f'{load_checkpoint}', map_location='cpu')
+    model = RAHF(pretrained_model_path=pretrained_model_path,freeze=True)
     model.load_state_dict(checkpoint['model'])
-    outputs = evaluate_test(model=model, dataloader=val_dataloader, device=gpu, criterion=criterion, save_root=save_root)
+    model.cuda(gpu)
+    model.eval()
+    processor = AutoProcessor.from_pretrained(pretrained_processor_path)
+    tag_word = ['human artifact', 'human segmentation']
+
+    with torch.no_grad():
+        preds = {}
+        for img_file in img_files:
+            img_name = img_file.split('.')[0]
+            prompt = name2prompt[img_name]
+            img_path = f'{img_root}/{img_file}'
+            img = Image.open(img_path)
+            image = img.resize((448, 448), Image.LANCZOS)
+
+            cur_input = processor(images=image, text=[f"{tag_word[0]} {prompt}", f"{tag_word[1]} {prompt}"],
+                    padding="max_length", return_tensors="pt", truncation=True)
+            inputs_pixel_values, inputs_ids_im = cur_input['pixel_values'].to(gpu), cur_input['input_ids'][0, :].unsqueeze(0).to(gpu)
+            
+            heatmap, score = model(inputs_pixel_values, inputs_ids_im, need_score=True)
+            score_data.append([img_name, score.item()]) 
+            print(f'heatmap: {heatmap.shape}, score: {score}')
+            
+            ori_heatmap = torch.round(heatmap * 255.0)
+            heatmap_treshold = 40
+            input_tensor = torch.where(ori_heatmap > heatmap_treshold, 1, 0)
+            saved_output_im_map = input_tensor.squeeze(0).cpu().numpy().astype(np.uint8)
+            preds[img_name[:-4]] = {
+                "score":score.item(),
+                "pred_area": saved_output_im_map
+            }
+
+    with open(f'{save_root}/baseline_results.pkl', 'wb') as f:
+        pickle.dump(preds, f)
+
+
+
 
 
 

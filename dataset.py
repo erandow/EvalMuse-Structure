@@ -54,7 +54,7 @@ class RAHFDataset(Dataset):
       artifact_map = self.data_info[cur_img]['heat_map'].astype(float)
       artifact_map = artifact_map/255.0  # 热力图归一化到0-1
 
-      # misalignment_map = self.data_info[cur_img]['human_mask'].astype(float)  # 使用0-1二值的人体mask
+      # misalignment_map = self.data_info[cur_img]['human_mask'].astype(float)  # 使用0-1二值的人体mask时需要
       misalignment_map = np.zeros((512,512))
       self.heatmaps.append([artifact_map, misalignment_map])
 

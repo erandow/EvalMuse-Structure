@@ -7,7 +7,15 @@ This baseline (EM-RAHF) is inspired by paper [Rich Human Feedback for Text-to-Im
 ![baseline framework](images/model.png)
 
 # Train&Eval
-You can train the baseline model by changing your own data path and training parameter settings, then run  
+We processed the bounding boxes in the annotation file into the format of heatmap following RAHF  
+| ![ori image](images/demo_image.png) | ![heatmap](images/demo_heatmap.png) |
+|-------------------------|-------------------------|
+You can process the training label into a baseline training file by executing the following script  
+```bash
+python data_process.py
+```
+
+Then you can train the baseline model by changing your own data path and training parameter settings, then run  
 ```bash
 ./run_train.sh  
 ```

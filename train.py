@@ -139,7 +139,7 @@ def train(args):
                                 pin_memory=True,
                                 sampler=train_sampler)
 
-  val_dataset = RAHFDataset(datapath, 'test', pretrained_processor_path, img_len=448)
+  val_dataset = RAHFDataset(datapath, 'val', pretrained_processor_path, img_len=448)
   val_sampler = torch.utils.data.distributed.DistributedSampler(val_dataset)
   val_dataloader = DataLoader(dataset=val_dataset,
                               batch_size=args.batch_size,
