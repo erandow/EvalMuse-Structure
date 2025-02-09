@@ -8,7 +8,7 @@ This baseline (EM-RAHF) is inspired by paper [Rich Human Feedback for Text-to-Im
 
 # Train&Eval
 We processed the bounding boxes in the annotation file into the format of heatmap to train baseline model following RAHF  
-| ![ori image](images/demo_image.png) | ![heatmap](images/demo_heatmap.png) |
+| ![ori image](images/demo_image.jpg) | ![heatmap](images/demo_heatmap.jpg) |
 |-------------------------|-------------------------|  
 
 You can process the training label into a baseline training file by executing the following script  
