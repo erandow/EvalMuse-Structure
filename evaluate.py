@@ -151,7 +151,6 @@ if  __name__ == '__main__':
             inputs_pixel_values, inputs_ids_im = cur_input['pixel_values'].to(gpu), cur_input['input_ids'][0, :].unsqueeze(0).to(gpu)
             
             heatmap, score = model(inputs_pixel_values, inputs_ids_im, need_score=True)
-            score_data.append([img_name, score.item()]) 
             print(f'heatmap: {heatmap.shape}, score: {score}')
             
             ori_heatmap = torch.round(heatmap * 255.0)
