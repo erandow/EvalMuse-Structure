@@ -4,8 +4,8 @@ import json
 import cv2
 import numpy as np
 '''
-将标注数据处理为baseline训练格式 train_info.pkl
-注：比赛不提供验证集，若有需要请自行划分, 保存为 val_info.pkl 到同一路径
+Process the labeled data into the baseline training format train_info.pkl
+Note: The competition does not provide a validation set. If necessary, please divide it yourself and save it as val_info.pkl in the same path
 '''
 
 def overlay_heatmap_opencv(mask, image):
@@ -13,10 +13,10 @@ def overlay_heatmap_opencv(mask, image):
     overlayed_image = cv2.addWeighted(image, 0.3, heatmap, 0.7, 0)
     return overlayed_image
 
-train_path = 'xxx' # 训练集图片路径
-vis_path = 'xxx' # 热力图可视化保存路径
-save_path = 'xxx' # 训练数据保存路径
-info_path = 'train_info.json'# 训练集标注数据
+train_path = 'xxx' # Training set image path
+vis_path = 'xxx' # Heatmap visualization save path
+save_path = 'xxx' # Training data save path
+info_path = 'train_info.json'# Training set annotation data
 with open(info_path, 'r') as f:
     info = json.load(f)
 os.makedirs(save_path, exist_ok=True)
